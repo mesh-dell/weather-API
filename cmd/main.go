@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/mesh-dell/weather-API/internal/api"
+	"github.com/mesh-dell/weather-API/internal/cache"
 	"github.com/mesh-dell/weather-API/internal/config"
 )
 
@@ -10,5 +11,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	api.InitServer(config)
+	cache := cache.NewCache(config)
+	api.InitServer(config, &cache)
 }

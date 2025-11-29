@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/mesh-dell/weather-API/internal/cache"
 	"github.com/mesh-dell/weather-API/internal/config"
 	dto "github.com/mesh-dell/weather-API/internal/dtos"
 )
@@ -19,12 +20,14 @@ type WeatherService interface {
 type weatherService struct {
 	apiKey  string
 	apiBase string
+	cache   cache.Cache
 }
 
-func NewWeatherService(config *config.Config) WeatherService {
+func NewWeatherService(config *config.Config, cache *cache.Cache) WeatherService {
 	return &weatherService{
 		apiKey:  config.APIKey,
 		apiBase: config.APIBase,
+		cache:   *cache,
 	}
 }
 
@@ -32,6 +35,18 @@ func (w *weatherService) GetWeatherByCity(
 	context context.Context,
 	weatherRequest dto.WeatherRequest,
 ) (dto.WeatherResponse, error) {
+	cacheKey := fmt.Sprintf("weather:%s:%s", weatherRequest.City, weatherRequest.UnitGroup)
+	// check cache
+	value, err := w.cache.Get(context, cacheKey)
+	if err == nil && value != "" {
+		var response dto.WeatherResponse
+		err := json.Unmarshal([]byte(value), &response)
+		if err == nil {
+			return response, nil
+		}
+	}
+
+	// fetch from api
 	url := fmt.Sprintf("%s/%s?unitGroup=%s&key=%s&contentType=json",
 		w.apiBase,
 		weatherRequest.City,
@@ -70,11 +85,20 @@ func (w *weatherService) GetWeatherByCity(
 		return dto.WeatherResponse{}, err
 	}
 
-	return dto.WeatherResponse{
+	weatherResp := dto.WeatherResponse{
 		Location:    apiResponse.ResolvedAddress,
 		Temperature: apiResponse.Days[0].Temp,
 		Windspeed:   apiResponse.Days[0].WindSpeed,
 		Conditions:  apiResponse.Days[0].Conditions,
 		Time:        time.Now(),
-	}, nil
+	}
+
+	// cache data
+	weatherJSON, _ := json.Marshal(weatherResp)
+	err = w.cache.Set(context, cacheKey, string(weatherJSON), 12*time.Hour)
+	if err != nil {
+		return dto.WeatherResponse{}, err
+	}
+
+	return weatherResp, nil
 }
