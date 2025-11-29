@@ -60,7 +60,7 @@ Example `.env`:
 
 ```
 API_KEY=your_api_key
-API_BASE_URL=[https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline](https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline)
+API_BASE_URL=[https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline]
 REDIS_ADDR=localhost:6379
 
 ```
@@ -84,8 +84,6 @@ docker run -p 6379:6379 redis
 ```bash
 go run cmd/server/main.go
 ```
-
----
 
 ## 🔒 Rate Limiting
 
