@@ -54,7 +54,7 @@ Environment variables:
 | `API_KEY`        | Your weather provider API key                      |
 | `API_BASE_URL`   | Example: `https://api.openweathermap.org/data/2.5` |
 | `REDIS_ADDR`     | Redis address, e.g., `localhost:6379`              |
-| `PORT`           | Port                                               |
+| `PORT`           | Port `8080`                                              |
 
 Example `.env`:
 
@@ -62,7 +62,7 @@ Example `.env`:
 API_KEY=your_api_key
 API_BASE_URL=[https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline]
 REDIS_ADDR=localhost:6379
-
+PORT=8080
 ```
 
 ## 🛠️ Running the Server
