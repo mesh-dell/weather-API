@@ -1,24 +1,24 @@
 package config
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
 )
 
-type config struct {
+type Config struct {
 	Port     string
 	RedisUrl string
 	APIKey   string
 	APIBase  string
 }
 
-func GetConfig() config {
+func GetConfig() (*Config, error) {
 	err := godotenv.Load()
 
 	if err != nil {
-		log.Fatal("Error loading .env file", err)
+		return nil, err
 	}
 
 	weatherApiKey := os.Getenv("WEATHER_API_KEY")
@@ -27,13 +27,13 @@ func GetConfig() config {
 	redisUrl := os.Getenv("REDIS_URL")
 
 	if weatherApiKey == "" {
-		log.Fatal("Please provide a visual crossing api key")
+		return nil, fmt.Errorf("please provide a visual crossing api key")
 	}
 
-	return config{
+	return &Config{
 		Port:     port,
 		RedisUrl: redisUrl,
 		APIKey:   weatherApiKey,
 		APIBase:  weatherApiBase,
-	}
+	}, nil
 }
